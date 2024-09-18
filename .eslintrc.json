@@ -1,0 +1,7 @@
+{
+  "extends": ["next/core-web-vitals", "next/typescript"],
+  "rules": {
+    // Add this rule to allow 'any'
+    "@typescript-eslint/no-explicit-any": "off"
+  }
+}
