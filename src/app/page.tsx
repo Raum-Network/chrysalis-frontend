@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useTheme } from 'next-themes'
-import { Wallet, ArrowUpDown, Percent, DollarSign, LayoutDashboard, ArrowRightLeft, Fish, Waves } from 'lucide-react'
+import { Wallet, Percent, DollarSign, LayoutDashboard, ArrowRightLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
