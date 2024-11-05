@@ -2,6 +2,7 @@ import React from 'react'
 import { Loader2 } from 'lucide-react'
 
 export default function Preloader() {
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0a1929]">
       <div className="flex flex-col items-center">
@@ -10,4 +11,5 @@ export default function Preloader() {
       </div>
     </div>
   )
+  
 }
