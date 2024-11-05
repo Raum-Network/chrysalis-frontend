@@ -61,11 +61,11 @@ export default function Dashboard() {
     return () => clearTimeout(timer)
   }, [setTheme])
 
-  const simulateTransaction = (setProgress, setComplete) => {
+  const simulateTransaction = (setProgress:any, setComplete:any) => {
     setProgress(0)
     setComplete(false)
     const interval = setInterval(() => {
-      setProgress((oldProgress) => {
+      setProgress((oldProgress:any) => {
         if (oldProgress === 100) {
           clearInterval(interval)
           setComplete(true)
@@ -190,7 +190,7 @@ export default function Dashboard() {
                   <Button onClick={handleStake} className="bg-[#4fc3f7] hover:bg-[#4fc3f7]/80 text-[#EAFF66] rounded-none">Stake</Button>
                   {stakeProgress > 0 && (
                     <div className="space-y-2">
-                      <Progress value={stakeProgress} className="w-full bg-[#1e3a5f] rounded-none" indicatorClassName="bg-[#4fc3f7] rounded-none" />
+                      <Progress value={stakeProgress} className="w-full bg-[#1e3a5f] rounded-none" />
                       <p className="text-sm">Staking in progress: {stakeProgress}%</p>
                     </div>
                   )}
@@ -239,7 +239,7 @@ export default function Dashboard() {
                   <Button onClick={handleUnstake} className="bg-[#4fc3f7] hover:bg-[#4fc3f7]/80 text-[#EAFF66] rounded-none">Unstake</Button>
                   {unstakeProgress > 0 && (
                     <div className="space-y-2">
-                      <Progress value={unstakeProgress} className="w-full bg-[#1e3a5f] rounded-none" indicatorClassName="bg-[#4fc3f7] rounded-none" />
+                      <Progress value={unstakeProgress} className="w-full bg-[#1e3a5f] rounded-none" />
                       <p className="text-sm">Unstaking in progress: {unstakeProgress}%</p>
                     </div>
                   )}
@@ -363,7 +363,7 @@ export default function Dashboard() {
                   </Button>
                   {swapProgress > 0 && (
                     <div className="space-y-2">
-                      <Progress value={swapProgress} className="w-full bg-[#1e3a5f] rounded-none" indicatorClassName="bg-[#4fc3f7] rounded-none" />
+                      <Progress value={swapProgress} className="w-full bg-[#1e3a5f] rounded-none" />
                       <p className="text-sm">Swap in progress: {swapProgress}%</p>
                     </div>
                   )}
