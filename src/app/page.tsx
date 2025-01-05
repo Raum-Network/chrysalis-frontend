@@ -14,6 +14,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import Link from 'next/link'
 import Preloader from './Preloader'
 import AnimatedTitle from './AnimatedTitle'
+import { AlbedoWallet } from '@/services/wallets/AlbedoWallet'
 
 // Mock data (replace with actual data fetching logic)
 const mockData = {
@@ -51,6 +52,8 @@ export default function Dashboard() {
   const [swapFromAmount, setSwapFromAmount] = useState('')
   const [swapToAmount, setSwapToAmount] = useState('')
   const [swapComplete, setSwapComplete] = useState(false)
+  const [wallet] = useState(new AlbedoWallet())
+  const [walletAddress, setWalletAddress] = useState<string | null>(null)
 
   useEffect(() => {
     setTheme('dark')
@@ -95,6 +98,46 @@ export default function Dashboard() {
     setSwapToAmount((parseFloat(value) * 1.5).toFixed(2))
   }
 
+  const handleConnectWallet = async () => {
+    try {
+      console.log("Attempting to connect wallet...");
+      if (!wallet) {
+        console.error("Wallet instance not initialized");
+        return;
+      }
+      
+      const address = await wallet.connect();
+      console.log("Connected wallet address:", address);
+      
+      setWalletAddress(address);
+      
+      try {
+        const balance = await wallet.getBalance();
+        console.log("Wallet balance:", balance);
+        mockData.walletBalance = parseFloat(balance);
+      } catch (balanceError) {
+        console.error("Failed to fetch balance:", balanceError);
+      }
+    } catch (error) {
+      console.error("Wallet connection error:", error);
+      // You might want to show an error message to the user here
+    }
+  };
+
+  const handleDisconnectWallet = async () => {
+    try {
+      await wallet.disconnect()
+      setWalletAddress(null)
+      mockData.walletBalance = 0
+    } catch (error) {
+      console.error('Failed to disconnect wallet:', error)
+    }
+  }
+
+  const formatAddress = (address: string): string => {
+    return `${address.slice(0, 6)}...${address.slice(-4)}`
+  }
+
   if (loading) {
     return <Preloader />
   }
@@ -103,9 +146,26 @@ export default function Dashboard() {
     <div className="min-h-screen flex flex-col bg-[#0a1929] text-[#a0b4c7] font-mono">
       <header className="flex justify-between items-center p-4 border-b border-[#1e3a5f]">
         <AnimatedTitle />
-        <Button variant="outline" className="border-[#4fc3f7] text-[#4fc3f7] hover:bg-[#1e3a5f] rounded-none">
-          <Wallet className="mr-2 h-4 w-4" /> Connect Wallet
-        </Button>
+        {!walletAddress ? (
+          <Button 
+            variant="outline" 
+            className="border-[#4fc3f7] text-[#4fc3f7] hover:bg-[#1e3a5f] rounded-none"
+            onClick={handleConnectWallet}
+          >
+            <Wallet className="mr-2 h-4 w-4" /> Connect Wallet
+          </Button>
+        ) : (
+          <div className="flex items-center space-x-4">
+            <span className="text-[#4fc3f7]">{formatAddress(walletAddress)}</span>
+            <Button 
+              variant="outline" 
+              className="border-red-500 text-red-500 hover:bg-red-500/10 rounded-none"
+              onClick={handleDisconnectWallet}
+            >
+              Disconnect
+            </Button>
+          </div>
+        )}
       </header>
 
       <main className="container mx-auto p-4 space-y-6 flex-grow">
