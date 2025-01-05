@@ -36,6 +36,7 @@ export class AlbedoWallet {
       });
       return result.signed_envelope_xdr;
     } catch (error) {
+      console.log(error);
       throw new Error('Failed to sign transaction');
     }
   }
@@ -53,6 +54,7 @@ export class AlbedoWallet {
       );
       return balance ? balance.balance : '0';
     } catch (error) {
+      console.log(error);
       throw new Error('Failed to fetch balance');
     }
   }
