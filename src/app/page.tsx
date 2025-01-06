@@ -15,6 +15,7 @@ import Link from 'next/link'
 import Preloader from './Preloader'
 import AnimatedTitle from './AnimatedTitle'
 import { AlbedoWallet } from '@/services/wallets/AlbedoWallet'
+import { stakeAssets } from '../components/staking'
 
 // Mock data (replace with actual data fetching logic)
 const mockData = {
@@ -80,8 +81,17 @@ export default function Dashboard() {
     }, 500)
   }
 
-  const handleStake = () => {
-    simulateTransaction(setStakeProgress, setStakeComplete)
+  const handleStake = async () => {
+    try {
+      setStakeProgress(0); // Reset progress
+      const result = await stakeAssets(stakeAmount, wallet); // Call stakeAssets
+      console.log("Stake transaction result:", result);
+      setStakeProgress(100); // Set progress to 100% on success
+      setStakeComplete(true); // Mark staking as complete
+    } catch (error) {
+      console.error("Staking failed:", error);
+      setStakeProgress(0); // Reset progress on failure
+    }
   }
 
   const handleUnstake = () => {
@@ -304,7 +314,7 @@ export default function Dashboard() {
                     </div>
                   )}
                   {unstakeComplete && (
-                    <Alert className="bg-[#1e3a5f] border-[#4fc3f7] rounded-none">
+                    <Alert className="bg-[#1e3f5f] border-[#4fc3f7] rounded-none">
                       <AlertTitle className="text-[#4fc3f7]">Success</AlertTitle>
                       <AlertDescription>Your unstake transaction has been completed successfully.</AlertDescription>
                     </Alert>
@@ -428,7 +438,7 @@ export default function Dashboard() {
                     </div>
                   )}
                   {swapComplete && (
-                    <Alert className="bg-[#1e3a5f] border-[#4fc3f7] rounded-none">
+                    <Alert className="bg-[#1e3f5f] border-[#4fc3f7] rounded-none">
                       <AlertTitle className="text-[#4fc3f7]">Success</AlertTitle>
                       <AlertDescription>Your swap transaction has been completed successfully.</AlertDescription>
                     </Alert>
@@ -460,7 +470,7 @@ export default function Dashboard() {
       <footer className="mt-auto bg-[#0f2744] border-t border-[#1e3a5f] p-4">
         <div className="container mx-auto flex flex-col md:flex-row justify-between items-center">
           <div className="text-sm mb-4 md:mb-0">
-            © 2023 ChrysalisFi by Raum Network. All rights reserved.
+            © 2025 Chrysalis by Raum Network. All rights reserved.
           </div>
           <nav className="flex space-x-4 text-sm">
             <Link href="/terms" className="hover:text-[#4fc3f7] transition-colors">

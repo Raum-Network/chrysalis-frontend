@@ -47,11 +47,12 @@ export class AlbedoWallet {
     }
 
     try {
-      const server = new Horizon.Server('https://horizon.stellar.org');
+      const server = new Horizon.Server('https://horizon-testnet.stellar.org');
       const account = await server.loadAccount(this.publicKey);
       const balance = account.balances.find(
         b => b.asset_type === 'native'
       );
+      console.log(balance)
       return balance ? balance.balance : '0';
     } catch (error) {
       console.log(error);
