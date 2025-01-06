@@ -30,7 +30,7 @@ export const stakeAssets = async (amount: string, wallet: AlbedoWallet) => {
                 nativeToScVal(address , {type:"address"}),
                 nativeToScVal(amount , {type:"i128"}),
             ]))
-            .setTimeout(30)
+            .setTimeout(500)
             .build();
 
         // Sign the transaction
