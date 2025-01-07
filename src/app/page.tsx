@@ -15,7 +15,7 @@ import Link from 'next/link'
 import Preloader from './Preloader'
 import AnimatedTitle from './AnimatedTitle'
 import { AlbedoWallet } from '@/services/wallets/AlbedoWallet'
-import { stakeAssets } from '../components/staking'
+import { stakeAssets, unStakeAssets } from '../components/staking'
 
 // Mock data (replace with actual data fetching logic)
 const mockData = {
@@ -23,7 +23,7 @@ const mockData = {
   stakedAssets: 500,
   currentAPY: 5.2,
   earnedYield: 25.5,
-  supportedAssets: ['stETH', 'rETH', 'swETH'],
+  supportedAssets: ['ETH'],
   apyRates: {
     Lido: 4.8,
     RocketPool: 5.2,
@@ -33,8 +33,6 @@ const mockData = {
 
 const swapPairs = [
   { from: 'XLM', to: 'ETH' },
-  { from: 'stETH', to: 'XLM' },
-  { from: 'rETH', to: 'XLM' },
 ]
 
 export default function Dashboard() {
@@ -53,6 +51,7 @@ export default function Dashboard() {
   const [swapFromAmount, setSwapFromAmount] = useState('')
   const [swapToAmount, setSwapToAmount] = useState('')
   const [swapComplete, setSwapComplete] = useState(false)
+  const [hash, setHash] = useState('')
   const [wallet] = useState(new AlbedoWallet())
   const [walletAddress, setWalletAddress] = useState<string | null>(null)
 
@@ -83,19 +82,29 @@ export default function Dashboard() {
 
   const handleStake = async () => {
     try {
-      setStakeProgress(0); // Reset progress
+      setStakeProgress(0); 
       const result = await stakeAssets(stakeAmount, wallet); // Call stakeAssets
-      console.log("Stake transaction result:", result);
-      setStakeProgress(100); // Set progress to 100% on success
-      setStakeComplete(true); // Mark staking as complete
+      setHash(result.tx_hash);
+      simulateTransaction(setStakeProgress , setStakeComplete );
+      
     } catch (error) {
       console.error("Staking failed:", error);
-      setStakeProgress(0); // Reset progress on failure
+      setStakeProgress(0); 
     }
   }
 
-  const handleUnstake = () => {
-    simulateTransaction(setUnstakeProgress, setUnstakeComplete)
+  const handleUnstake = async() => {
+    try {
+      setUnstakeProgress(0); 
+      const result = await unStakeAssets(unstakeAmount, wallet); // Call stakeAssets
+      setHash(result.tx_hash);
+      simulateTransaction(setUnstakeProgress , setUnstakeComplete );
+      
+    } catch (error) {
+      console.error("Staking failed:", error);
+      setStakeProgress(0); 
+    }
+    // simulateTransaction(setUnstakeProgress, setUnstakeComplete)
   }
 
   const handleSwap = () => {
@@ -267,7 +276,7 @@ export default function Dashboard() {
                   {stakeComplete && (
                     <Alert className="bg-[#1e3a5f] border-[#4fc3f7] rounded-none">
                       <AlertTitle className="text-[#4fc3f7]">Success</AlertTitle>
-                      <AlertDescription>Your stake transaction has been completed successfully.</AlertDescription>
+                      <AlertDescription>Your stake transaction has been completed successfully: {hash}.</AlertDescription>
                     </Alert>
                   )}
                 </div>
@@ -316,7 +325,7 @@ export default function Dashboard() {
                   {unstakeComplete && (
                     <Alert className="bg-[#1e3f5f] border-[#4fc3f7] rounded-none">
                       <AlertTitle className="text-[#4fc3f7]">Success</AlertTitle>
-                      <AlertDescription>Your unstake transaction has been completed successfully.</AlertDescription>
+                      <AlertDescription>Your unstake transaction has been completed successfully: {hash}</AlertDescription>
                     </Alert>
                   )}
                 </div>

@@ -1,4 +1,4 @@
-import albedo from '@albedo-link/intent';
+import albedo, { TxIntentParams, TxIntentResult } from '@albedo-link/intent';
 import { Horizon, Transaction } from 'stellar-sdk';
 
 export class AlbedoWallet {
@@ -25,7 +25,7 @@ export class AlbedoWallet {
     this.publicKey = null;
   }
 
-  async signTransaction(transaction: Transaction): Promise<string> {
+  async signTransaction(transaction: Transaction):Promise<any> {
     if (!this.publicKey) {
       throw new Error('Wallet not connected');
     }
@@ -33,8 +33,10 @@ export class AlbedoWallet {
     try {
       const result = await albedo.tx({
         xdr: transaction.toXDR(),
+        network:'testnet',
+        submit:true
       });
-      return result.signed_envelope_xdr;
+      return result;
     } catch (error) {
       console.log(error);
       throw new Error('Failed to sign transaction');
