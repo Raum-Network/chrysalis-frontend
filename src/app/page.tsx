@@ -139,7 +139,7 @@ export default function Dashboard() {
       }
     } catch (error) {
       console.error("Wallet connection error:", error);
-      // You might want to show an error message to the user here
+      
     }
   };
 
@@ -276,7 +276,12 @@ export default function Dashboard() {
                   {stakeComplete && (
                     <Alert className="bg-[#1e3a5f] border-[#4fc3f7] rounded-none">
                       <AlertTitle className="text-[#4fc3f7]">Success</AlertTitle>
-                      <AlertDescription>Your stake transaction has been completed successfully: {hash}.</AlertDescription>
+                      <AlertDescription>
+                        Your stake transaction has been completed successfully: 
+                        <a href={`https://stellar.expert/explorer/testnet/tx/${hash}`} target="_blank" rel="noopener noreferrer">
+                            {hash}
+                        </a>.
+                      </AlertDescription>
                     </Alert>
                   )}
                 </div>
@@ -325,7 +330,10 @@ export default function Dashboard() {
                   {unstakeComplete && (
                     <Alert className="bg-[#1e3f5f] border-[#4fc3f7] rounded-none">
                       <AlertTitle className="text-[#4fc3f7]">Success</AlertTitle>
-                      <AlertDescription>Your unstake transaction has been completed successfully: {hash}</AlertDescription>
+                      <AlertDescription> Your unstake transaction has been completed successfully: 
+                        <a href={`https://stellar.expert/explorer/testnet/tx/${hash}`} target="_blank" rel="noopener noreferrer">
+                            {hash}
+                        </a>.</AlertDescription>
                     </Alert>
                   )}
                 </div>
