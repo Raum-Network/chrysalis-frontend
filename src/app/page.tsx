@@ -104,7 +104,7 @@ export default function Dashboard() {
       console.error("Staking failed:", error);
       setStakeProgress(0); 
     }
-    // simulateTransaction(setUnstakeProgress, setUnstakeComplete)
+    
   }
 
   const handleSwap = () => {
