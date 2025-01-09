@@ -1,7 +1,7 @@
 // src/services/staking.ts
 
 import { AlbedoWallet } from '@/services/wallets/AlbedoWallet';
-import { nativeToScVal, Horizon, rpc, TransactionBuilder, Networks, Contract, Transaction, scValToNative } from '@stellar/stellar-sdk';
+import { nativeToScVal, Horizon, rpc, TransactionBuilder, Networks, Contract, Transaction, scValToNative } from 'stellar-sdk';
 
 const STAKING_CONTRACT_ADDRESS = 'CD4NK6ZV6MGJBQZA66LJPTM5NMDFLHYLBUCDMTG5KK223D2DLVULXJ5H';
 
