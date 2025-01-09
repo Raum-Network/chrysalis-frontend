@@ -1,7 +1,7 @@
 // src/services/staking.ts
 
 import { AlbedoWallet } from '@/services/wallets/AlbedoWallet';
-import { nativeToScVal, Horizon, rpc, TransactionBuilder, Networks, Contract, Transaction, scValToNative } from 'stellar-sdk';
+import { nativeToScVal, Horizon, rpc, TransactionBuilder, Networks, Contract, Transaction, scValToNative } from '@stellar/stellar-sdk';
 
 const STAKING_CONTRACT_ADDRESS = 'CD4NK6ZV6MGJBQZA66LJPTM5NMDFLHYLBUCDMTG5KK223D2DLVULXJ5H';
 
@@ -142,6 +142,8 @@ export const swapAssets = async (tokenA: string, tokenB: string, amount: string,
     }
 };
 export const getSwapAmount = async (tokenA: string, tokenB: string, amount: string, wallet: AlbedoWallet) => {
+
+    
     try {
         // Ensure the wallet is connected
         const address = await wallet.getPublicKey();
@@ -174,10 +176,19 @@ export const getSwapAmount = async (tokenA: string, tokenB: string, amount: stri
 
         let preparedTransaction = await server.simulateTransaction(transaction);
 
+        interface newSimulateResponse extends rpc.Api.SimulateTransactionSuccessResponse {
+            result:any
+        }
 
-        
-        if (preparedTransaction.result) {
-            return (0.95 * Number(scValToNative(preparedTransaction.result.retval)[1])).toFixed(0);
+        let data: rpc.Api.SimulateTransactionSuccessResponse = preparedTransaction as rpc.Api.SimulateTransactionSuccessResponse;
+
+        if (preparedTransaction && "result" in preparedTransaction) {
+            const retval = preparedTransaction.result?.retval;
+            if (retval) {
+                return (0.95 * Number(scValToNative(retval)[1])).toFixed(0);
+            } else {
+                throw new Error("Result value is undefined");
+            }
         } else {
             throw new Error("Simulation failed");
         }
