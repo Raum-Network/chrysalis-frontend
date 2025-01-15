@@ -10,7 +10,7 @@ const ConnectWallet: React.FC = () => {
     try {
       const address = await wallet.connect();
       setPublicKey(address);
-      const walletBalance = await wallet.getBalance();
+      const walletBalance = await wallet.getBalance('native');
       setBalance(walletBalance);
     } catch (error) {
       console.error('Failed to connect wallet:', error);
