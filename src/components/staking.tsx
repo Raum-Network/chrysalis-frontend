@@ -172,20 +172,68 @@ export const getSwapAmount = async (tokenA: string, tokenB: string, amount: stri
             .setTimeout(500)
             .build();
 
-        console.log("Built transaction:", transaction);
+        console.log("Built transaction get :", transaction);
 
         let preparedTransaction = await server.simulateTransaction(transaction);
 
-        interface newSimulateResponse extends rpc.Api.SimulateTransactionSuccessResponse {
-            result:any
-        }
-
-        let data: rpc.Api.SimulateTransactionSuccessResponse = preparedTransaction as rpc.Api.SimulateTransactionSuccessResponse;
+        console.log("Prepared transaction get:", preparedTransaction);
 
         if (preparedTransaction && "result" in preparedTransaction) {
             const retval = preparedTransaction.result?.retval;
             if (retval) {
                 return (0.95 * Number(scValToNative(retval)[1])).toFixed(0);
+            } else {
+                throw new Error("Result value is undefined");
+            }
+        } else {
+            throw new Error("Simulation failed");
+        }
+    } catch (error) {
+        console.error("Staking transaction failed:", error);
+        throw error;
+    }
+};
+
+export const getStakedAsset = async (tokenA: string, tokenB: string, amount: string, wallet: AlbedoWallet) => {
+
+    
+    try {
+        // Ensure the wallet is connected
+        const address = await wallet.getPublicKey();
+        if (!address) {
+            throw new Error("Wallet is not connected");
+        }
+
+        // Create a Stellar SDK server instance
+        const server = new rpc.Server('https://soroban-testnet.stellar.org:443');
+
+        // Load the account
+        const account = await server.getAccount(address);
+        console.log("Loaded account:", account);
+
+        const contract = new Contract("CD4NK6ZV6MGJBQZA66LJPTM5NMDFLHYLBUCDMTG5KK223D2DLVULXJ5H");
+
+        // Create a transaction
+        const transaction = new TransactionBuilder(account, {
+            fee: '100',
+            networkPassphrase: Networks.TESTNET,
+        })
+            .addOperation(contract.call("get_stake_amount", ...[
+               nativeToScVal(address, { type: "address" }),
+            ]))
+            .setTimeout(500)
+            .build();
+
+        console.log("Built transaction:", transaction);
+
+        let preparedTransaction = await server.simulateTransaction(transaction);
+
+        console.log("Prepared transaction:", preparedTransaction);
+
+        if (preparedTransaction && "result" in preparedTransaction) {
+            const retval = preparedTransaction.result?.retval;
+            if (retval) {
+                return (Number(scValToNative(retval))).toFixed(4);
             } else {
                 throw new Error("Result value is undefined");
             }
