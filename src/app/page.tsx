@@ -207,7 +207,7 @@ export default function Dashboard() {
         addresses[swapTo as keyof typeof addresses],
         value,
         wallet
-      )
+      ).then(res => (parseFloat(res) / (10 ** 7)).toString())
     );
   };
 
@@ -695,7 +695,7 @@ export default function Dashboard() {
       <footer className="mt-auto bg-[#0f2744] border-t border-[#1e3a5f] p-4">
         <div className="container mx-auto flex flex-col md:flex-row justify-between items-center">
           <div className="text-sm mb-4 md:mb-0">
-            © 2025 Chrysalis by Raum Network. All rights reserved.
+            © 2024 - 2025 Chrysalis by Raum Network. All rights reserved.
           </div>
           <nav className="flex space-x-4 text-sm">
             <Link href="/terms" className="hover:text-[#4fc3f7] transition-colors">

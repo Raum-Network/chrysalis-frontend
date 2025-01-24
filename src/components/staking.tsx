@@ -29,7 +29,7 @@ export const stakeAssets = async (amount: string, wallet: AlbedoWallet) => {
         })
             .addOperation(contract.call("stake_eth", ...[
                 nativeToScVal(address, { type: "address" }),
-                nativeToScVal(amount, { type: "i128" }),
+                nativeToScVal(Number(amount) * (10 ** 7), { type: "i128" }),
             ]))
             .setTimeout(500)
             .build();
@@ -118,7 +118,7 @@ export const swapAssets = async (tokenA: string, tokenB: string, amount: string,
             networkPassphrase: Networks.TESTNET,
         })
             .addOperation(contract.call("swap_exact_tokens_for_tokens", ...[
-                nativeToScVal(amount, { type: "i128" }),
+                nativeToScVal(Number(amount) * (10 ** 7), { type: "i128" }),
                 nativeToScVal("0", { type: "i128" }),
                 nativeToScVal([nativeToScVal(tokenA, { type: "address" }), nativeToScVal(tokenB, { type: "address" })], { type: "Vec" }),
                 nativeToScVal(address, { type: "address" }),
@@ -168,7 +168,7 @@ export const getSwapAmount = async (tokenA: string, tokenB: string, amount: stri
             networkPassphrase: Networks.TESTNET,
         })
             .addOperation(contract.call("router_get_amounts_out", ...[
-                nativeToScVal(amount, { type: "i128" }),
+                nativeToScVal(Number(amount) * (10 ** 7), { type: "i128" }),
                 nativeToScVal([nativeToScVal(tokenA, { type: "address" }), nativeToScVal(tokenB, { type: "address" })], { type: "Vec" }),
             ]))
             .setTimeout(500)
@@ -183,7 +183,8 @@ export const getSwapAmount = async (tokenA: string, tokenB: string, amount: stri
         if (preparedTransaction && "result" in preparedTransaction) {
             const retval = preparedTransaction.result?.retval;
             if (retval) {
-                return (0.95 * Number(scValToNative(retval)[1])).toFixed(0);
+                
+                return (0.95 * Number(scValToNative(retval)[1])).toFixed(0)
             } else {
                 throw new Error("Result value is undefined");
             }
