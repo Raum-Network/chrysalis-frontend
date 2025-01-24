@@ -36,7 +36,7 @@ export const stakeAssets = async (amount: string, wallet: AlbedoWallet) => {
 
         console.log("Built transaction:", transaction);
 
-        let preparedTransaction = await server.prepareTransaction(transaction);
+        const preparedTransaction = await server.prepareTransaction(transaction);
         console.log("Prepared transaction:", preparedTransaction);
 
         const data = await wallet.signTransaction(preparedTransaction);
@@ -82,7 +82,7 @@ export const unStakeAssets = async (amount: string, wallet: AlbedoWallet) => {
 
         console.log("Built transaction:", transaction);
 
-        let preparedTransaction = await server.prepareTransaction(transaction);
+        const preparedTransaction = await server.prepareTransaction(transaction);
         console.log("Prepared transaction:", preparedTransaction);
 
         const data = await wallet.signTransaction(preparedTransaction);
@@ -129,7 +129,7 @@ export const swapAssets = async (tokenA: string, tokenB: string, amount: string,
 
         console.log("Built transaction:", transaction);
 
-        let preparedTransaction = await server.prepareTransaction(transaction);
+        const preparedTransaction = await server.prepareTransaction(transaction);
         console.log("Prepared transaction:", preparedTransaction);
 
         const data = await wallet.signTransaction(preparedTransaction);
@@ -176,7 +176,7 @@ export const getSwapAmount = async (tokenA: string, tokenB: string, amount: stri
 
         console.log("Built transaction get :", transaction);
 
-        let preparedTransaction = await server.simulateTransaction(transaction);
+        const preparedTransaction = await server.simulateTransaction(transaction);
 
         console.log("Prepared transaction get:", preparedTransaction);
 
@@ -228,7 +228,7 @@ export const getStakedAsset = async (tokenA: string, tokenB: string, amount: str
 
         console.log("Built transaction:", transaction);
 
-        let preparedTransaction = await server.simulateTransaction(transaction);
+        const preparedTransaction = await server.simulateTransaction(transaction);
 
         console.log("Prepared transaction:", preparedTransaction , "stakedassets");
 
@@ -314,7 +314,7 @@ export const setTrustline = async (assetCode: string, assetIssuer: string, walle
 
         console.log("Built transaction for trustline:", transaction);
 
-        // let preparedTransaction = await server.prepareTransaction(transaction);
+        // const preparedTransaction = await server.prepareTransaction(transaction);
         // console.log("Prepared transaction for trustline:", preparedTransaction);
 
         const data = await wallet.signTransaction(transaction);
