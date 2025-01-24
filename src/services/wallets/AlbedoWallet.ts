@@ -54,7 +54,26 @@ export class AlbedoWallet {
       const balance = account.balances.find(
         b => b.asset_type === token
       );
-      console.log(balance)
+      return balance ? balance.balance : '0';
+    } catch (error) {
+      console.log(error);
+      throw new Error('Failed to fetch balance');
+    }
+  }
+
+  async getBalanceETH(token:string): Promise<string> {
+    if (!this.publicKey) {
+      throw new Error('Wallet not connected');
+    }
+
+    try {
+      const server = new Horizon.Server('https://horizon-testnet.stellar.org');
+      const account = await server.loadAccount(this.publicKey);
+      console.log(account.balances , "wwwwww")
+      const balance = account.balances.find(
+        b => b.asset_type === "credit_alphanum4" && b.asset_code === "ETH" && b.asset_issuer === "GDHPD2PT2HQEMG2XGLSSMSPQTXM5TL3WLU6BLDQ2SMWUVBOX2Y4ZKUUA"
+      );
+      console.log(balance , "balance")
       return balance ? balance.balance : '0';
     } catch (error) {
       console.log(error);

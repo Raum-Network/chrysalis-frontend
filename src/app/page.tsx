@@ -21,7 +21,7 @@ import { stakeAssets, unStakeAssets, swapAssets, getSwapAmount, getStakedAsset, 
 const mockData = {
   walletBalance: 1000,
   stakedAssets: 500,
-  currentAPY: 5.2,
+  currentAPY: 0,
   earnedYield: 25.5,
   supportedAssets: ['ETH'],
   apyRates: {
@@ -63,8 +63,8 @@ export default function Dashboard() {
   const [walletAddress, setWalletAddress] = useState<string | null>(null)
   const [updateTrigger, setUpdateTrigger] = useState(0) // Add this state
   const [debouncedSwapFromAmount, setDebouncedSwapFromAmount] = useState('');
-  const [trustlineETH, setTrustlineETH] = useState(true);
-  const [trustlineStETH, setTrustlineStETH] = useState(true);
+  const [trustlineETH, setTrustlineETH] = useState(false);
+  const [trustlineStETH, setTrustlineStETH] = useState(false);
 
   // Debounce logic for the swap-from-amount input
   useEffect(() => {
@@ -112,7 +112,9 @@ export default function Dashboard() {
   const updateBalance = async () => {
     try {
       const balance = await wallet.getBalance('native');
+      const balanceETH = await wallet.getBalanceETH('ETH');
       mockData.walletBalance = parseFloat(balance);
+      mockData.currentAPY = parseFloat(balanceETH);
     } catch (error) {
       console.error("Failed to fetch balance:", error);
     }
@@ -241,7 +243,11 @@ export default function Dashboard() {
       if (walletAddress) {
         try {
           const balance = await wallet.getBalance('native');
+          console.log('a')
+          const balanceETH = await wallet.getBalanceETH('ETH');
+          console.log('b')
           mockData.walletBalance = parseFloat(balance);
+          mockData.currentAPY = parseFloat(balanceETH);
         } catch (error) {
           console.error("Failed to fetch balance:", error);
         }
@@ -366,11 +372,11 @@ export default function Dashboard() {
           </Card>
           <Card className="bg-[#0f2744] border-[#1e3a5f] rounded-none">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-[#4fc3f7]">Current APY</CardTitle>
-              <Percent className="h-4 w-4 text-[#4fc3f7]" />
+              <CardTitle className="text-sm font-medium text-[#4fc3f7]">ETH Balance</CardTitle>
+              {/* <Percent className="h-4 w-4 text-[#4fc3f7]" /> */}
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-[#EAFF66]">{mockData.currentAPY}%</div>
+              <div className="text-2xl font-bold text-[#EAFF66]">{mockData.currentAPY}</div>
             </CardContent>
           </Card>
           <Card className="bg-[#0f2744] border-[#1e3a5f] rounded-none">
@@ -423,23 +429,27 @@ export default function Dashboard() {
                       className="bg-[#0a1929] border-[#1e3a5f] text-[#a0b4c7] placeholder:text-[#a0b4c7]/50 rounded-none"
                     />
                   </div>
-                  {/* Check trustlines and show button if needed */}
-                  {!trustlineETH && (
+                  {walletAddress && !trustlineETH && (
                     <Button onClick={async() => {
                       await setTrustline('ETH' , 'GDHPD2PT2HQEMG2XGLSSMSPQTXM5TL3WLU6BLDQ2SMWUVBOX2Y4ZKUUA' , wallet)
-                    checkTrustlines();} 
-                    } className="bg-[#4fc3f7] hover:bg-[#4fc3f7]/80 text-[#EAFF66] rounded-none">
+                      checkTrustlines();
+                    }} className="bg-[#4fc3f7] hover:bg-[#4fc3f7]/80 text-[#EAFF66] rounded-none">
                       Set Trustline for ETH
                     </Button>
                   )}
-                  {!trustlineStETH && (
+                  
+                  {walletAddress && !trustlineStETH && trustlineETH && (
                     <Button onClick={async() => {
                       await setTrustline('stETH' , 'GDZ7SGRSOKOMOENHDBXDYNC77LBP6YRILWXFKL2K6COXVSAE27KHAVQL' , wallet)
-                      checkTrustlines();}} className="bg-[#4fc3f7] hover:bg-[#4fc3f7]/80 text-[#EAFF66] rounded-none">
+                      checkTrustlines();
+                    }} className="bg-[#4fc3f7] hover:bg-[#4fc3f7]/80 text-[#EAFF66] rounded-none">
                       Set Trustline for stETH
                     </Button>
                   )}
-                  <Button onClick={handleStake} className="bg-[#4fc3f7] hover:bg-[#4fc3f7]/80 text-[#EAFF66] rounded-none">Stake</Button>
+                  {walletAddress && trustlineETH && trustlineStETH && (
+                    <Button onClick={handleStake} className="bg-[#4fc3f7] hover:bg-[#4fc3f7]/80 text-[#EAFF66] rounded-none">Stake</Button>
+                  )}
+                  {/* <Button onClick={handleStake} className="bg-[#4fc3f7] hover:bg-[#4fc3f7]/80 text-[#EAFF66] rounded-none">Stake</Button> */}
                   {stakeProgress > 0 && (
                     <div className="space-y-2">
                       <Progress value={stakeProgress} className="w-full bg-[#1e3f5f] rounded-none" />
@@ -635,12 +645,14 @@ export default function Dashboard() {
                       Set Trustline for ETH
                     </Button>
                   )}
+                  {walletAddress && trustlineETH && (
                   <Button
                     onClick={handleSwap}
                     className="bg-[#4fc3f7] hover:bg-[#4fc3f7]/80 text-[#EAFF66] rounded-none"
                   >
                     <ArrowRightLeft className="mr-2 h-4 w-4" /> Swap
                   </Button>
+)}
                   {swapProgress > 0 && (
                     <div className="space-y-2">
                       <Progress value={swapProgress} className="w-full bg-[#1e3a5f] rounded-none" />
@@ -650,9 +662,10 @@ export default function Dashboard() {
                   {swapComplete && (
                     <Alert className="bg-[#1e3f5f] border-[#4fc3f7] rounded-none">
                       <AlertTitle className="text-[#4fc3f7]">Success</AlertTitle>
-                      <AlertDescription>
-                        Your swap transaction has been completed successfully.
-                      </AlertDescription>
+                      <AlertDescription> Your swap transaction has been completed successfully:
+                        <a href={`https://stellar.expert/explorer/testnet/tx/${hash}`} target="_blank" rel="noopener noreferrer">
+                          {hash}
+                        </a>.</AlertDescription>
                     </Alert>
                   )}
                 </div>
