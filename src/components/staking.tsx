@@ -1,7 +1,7 @@
 // src/services/staking.ts
 
 import { AlbedoWallet } from '@/services/wallets/AlbedoWallet';
-import { nativeToScVal, Horizon, rpc, TransactionBuilder, Networks, Contract, Transaction, scValToNative } from 'stellar-sdk';
+import { nativeToScVal, Horizon, rpc, TransactionBuilder, Networks, Contract, Transaction, scValToNative, Asset, Operation } from 'stellar-sdk';
 
 const STAKING_CONTRACT_ADDRESS = 'CAZVQKKCWYMGPWFKTAXUTNWT4GP2JFWPSX4YT4N2IOQQSXFMT5OPP4AO';
 
@@ -213,7 +213,7 @@ export const getStakedAsset = async (tokenA: string, tokenB: string, amount: str
         const account = await server.getAccount(address);
         console.log("Loaded account:", account);
 
-        const contract = new Contract("CD4NK6ZV6MGJBQZA66LJPTM5NMDFLHYLBUCDMTG5KK223D2DLVULXJ5H");
+        const contract = new Contract(STAKING_CONTRACT_ADDRESS);
 
         // Create a transaction
         const transaction = new TransactionBuilder(account, {
@@ -230,7 +230,7 @@ export const getStakedAsset = async (tokenA: string, tokenB: string, amount: str
 
         let preparedTransaction = await server.simulateTransaction(transaction);
 
-        console.log("Prepared transaction:", preparedTransaction);
+        console.log("Prepared transaction:", preparedTransaction , "stakedassets");
 
         if (preparedTransaction && "result" in preparedTransaction) {
             const retval = preparedTransaction.result?.retval;
@@ -247,3 +247,87 @@ export const getStakedAsset = async (tokenA: string, tokenB: string, amount: str
         throw error;
     }
 };
+
+export const isTrustlineRequired = async (assetCode: string, assetIssuer: string, wallet: AlbedoWallet) => {
+    try {
+        // Ensure the wallet is connected
+        const address = await wallet.getPublicKey();
+        if (!address) {
+            throw new Error("Wallet is not connected");
+        }
+
+        // Create a Stellar SDK server instance
+        const server = new rpc.Server('https://soroban-testnet.stellar.org:443');
+
+        // Load the account
+        const account = await server.getAccount(address);
+        console.log("Loaded account:", account);
+
+        // Check if the asset is in the account's balances
+        const asset = new Asset(assetCode, assetIssuer);
+        const accountData = await fetch(`https://horizon-testnet.stellar.org/accounts/${address}`).then(res=> res.json())
+        
+        const hasTrustline = accountData?.balances.some((balance: { asset_code: string; asset_issuer: string; }) => 
+            balance.asset_code === asset.getCode() && balance.asset_issuer === asset.getIssuer()
+        );
+
+        console.log(hasTrustline , assetCode)
+
+        return hasTrustline; // Return true if trustline is required
+    } catch (error) {
+        console.error("Error checking trustline requirement:", error);
+        throw error;  
+    }
+};
+
+export const setTrustline = async (assetCode: string, assetIssuer: string, wallet: AlbedoWallet) => {
+    try {
+        // Ensure the wallet is connected
+        const address = await wallet.getPublicKey();
+        if (!address) {
+            throw new Error("Wallet is not connected");
+        }
+
+        // Create a Stellar SDK server instance
+        const server = new rpc.Server('https://soroban-testnet.stellar.org:443');
+
+        // Load the account
+        const account = await server.getAccount(address);
+        console.log("Loaded account:", account);
+
+        const asset = new Asset(assetCode, assetIssuer);
+
+        console.log(asset)
+
+        // Create a transaction to set the trustline
+        const transaction = new TransactionBuilder(account, {
+            fee: '100',
+            networkPassphrase: Networks.TESTNET,
+        })
+            .addOperation(
+                Operation.changeTrust({
+                    asset: asset,
+                })     
+            )
+            .setTimeout(500)
+            .build();
+
+        console.log("Built transaction for trustline:", transaction);
+
+        // let preparedTransaction = await server.prepareTransaction(transaction);
+        // console.log("Prepared transaction for trustline:", preparedTransaction);
+
+        const data = await wallet.signTransaction(transaction);
+        console.log("Signed transaction for trustline:", data);
+
+        // Submit the transaction
+        // const result = await server.sendTransaction(preparedTransaction);
+        // console.log("Trustline set successfully:", result);
+        return data;
+    } catch (error) {
+        console.error("Setting trustline failed:", error);
+        throw error;
+    }
+};
+
+

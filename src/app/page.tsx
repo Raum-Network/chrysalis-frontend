@@ -15,7 +15,7 @@ import Link from 'next/link'
 import Preloader from './Preloader'
 import AnimatedTitle from './AnimatedTitle'
 import { AlbedoWallet } from '@/services/wallets/AlbedoWallet'
-import { stakeAssets, unStakeAssets, swapAssets, getSwapAmount, getStakedAsset } from '../components/staking'
+import { stakeAssets, unStakeAssets, swapAssets, getSwapAmount, getStakedAsset, isTrustlineRequired, setTrustline } from '../components/staking'
 
 // Mock data (replace with actual data fetching logic)
 const mockData = {
@@ -63,6 +63,9 @@ export default function Dashboard() {
   const [walletAddress, setWalletAddress] = useState<string | null>(null)
   const [updateTrigger, setUpdateTrigger] = useState(0) // Add this state
   const [debouncedSwapFromAmount, setDebouncedSwapFromAmount] = useState('');
+  const [trustlineETH, setTrustlineETH] = useState(true);
+  const [trustlineETHSwap, setTrustlineETHSwap] = useState(true);
+  const [trustlineStETH, setTrustlineStETH] = useState(true);
 
   // Debounce logic for the swap-from-amount input
   useEffect(() => {
@@ -79,7 +82,6 @@ export default function Dashboard() {
       handleSwapFromChange(debouncedSwapFromAmount);
     }
   }, [debouncedSwapFromAmount]);
-
 
 
   useEffect(() => {
@@ -127,28 +129,7 @@ export default function Dashboard() {
   };
 
   // Add this useEffect
-  useEffect(() => {
-    const fetchBalance = async () => {
-      if (walletAddress) {
-        try {
-          const balance = await wallet.getBalance('native');
-          mockData.walletBalance = parseFloat(balance);
-        } catch (error) {
-          console.error("Failed to fetch balance:", error);
-        }
-      }
-    };
-    const updateStakedAssets = async () => {
-      try {
-        const staked = await getStakedAsset('native', 'native', '0', wallet);
-        mockData.stakedAssets = parseFloat(staked);
-      } catch (error) {
-        console.error("Failed to fetch staked:", error);
-      }
-    };
-    
-    [fetchBalance() , updateStakedAssets()]
-  }, [walletAddress, updateTrigger, wallet]);
+
 
   // Update handleConnectWallet
   const handleConnectWallet = async () => {
@@ -168,6 +149,8 @@ export default function Dashboard() {
       console.error("Wallet connection error:", error);
     }
   };
+
+  
 
   // Update handleStake
   const handleStake = async () => {
@@ -227,31 +210,56 @@ export default function Dashboard() {
     );
   };
 
-  const handleConnectWallet = async () => {
-    try {
-      console.log("Attempting to connect wallet...");
-      if (!wallet) {
-        console.error("Wallet instance not initialized");
-        return;
+  // const handleConnectWallet = async () => {
+  //   try {
+  //     console.log("Attempting to connect wallet...");
+  //     if (!wallet) {
+  //       console.error("Wallet instance not initialized");
+  //       return;
+  //     }
+
+  //     const address = await wallet.connect();
+  //     console.log("Connected wallet address:", address);
+
+  //     setWalletAddress(address);
+
+  //     try {
+  //       const balance = await wallet.getBalance('native');
+  //       console.log("Wallet balance:", balance);
+  //       mockData.walletBalance = parseFloat(balance);
+       
+  //     } catch (balanceError) {
+  //       console.error("Failed to fetch balance:", balanceError);
+  //     }
+  //   } catch (error) {
+  //     console.error("Wallet connection error:", error);
+
+  //   }
+  // };
+
+  useEffect(() => {
+    const fetchBalance = async () => {
+      if (walletAddress) {
+        try {
+          const balance = await wallet.getBalance('native');
+          mockData.walletBalance = parseFloat(balance);
+        } catch (error) {
+          console.error("Failed to fetch balance:", error);
+        }
       }
-
-      const address = await wallet.connect();
-      console.log("Connected wallet address:", address);
-
-      setWalletAddress(address);
-
+    };
+    const updateStakedAssets = async () => {
       try {
-        const balance = await wallet.getBalance();
-        console.log("Wallet balance:", balance);
-        mockData.walletBalance = parseFloat(balance);
-      } catch (balanceError) {
-        console.error("Failed to fetch balance:", balanceError);
+        const staked = await getStakedAsset('native', 'native', '0', wallet);
+        console.log(staked , "ssssss")
+        mockData.stakedAssets = parseFloat(staked);
+      } catch (error) {
+        console.error("Failed to fetch staked:", error);
       }
-    } catch (error) {
-      console.error("Wallet connection error:", error);
-
-    }
-  };
+    };
+    
+    [fetchBalance() , updateStakedAssets()]
+  }, [walletAddress, updateTrigger, wallet , handleSwap , handleStake , handleUnstake , handleConnectWallet ]);
   
 
   const handleDisconnectWallet = async () => {
@@ -272,6 +280,40 @@ export default function Dashboard() {
     setSwapFrom(prev => (prev === 'XLM' ? 'ETH' : 'XLM'));
     setSwapTo(prev => (prev === 'ETH' ? 'XLM' : 'ETH'));
   };
+
+  // Function to check trustlines
+  const checkTrustlines = async () => {
+    try {
+      const ethTrustline = await isTrustlineRequired( 'ETH' , 'GDHPD2PT2HQEMG2XGLSSMSPQTXM5TL3WLU6BLDQ2SMWUVBOX2Y4ZKUUA' , wallet); // Call isTrustline for ETH
+      const stEthTrustline = await isTrustlineRequired( 'stETH' , 'GDZ7SGRSOKOMOENHDBXDYNC77LBP6YRILWXFKL2K6COXVSAE27KHAVQL' , wallet); // Call isTrustline for stETH
+      setTrustlineETH(ethTrustline);
+      setTrustlineStETH(stEthTrustline);
+    } catch (error) {
+      console.error("Failed to check trustlines:", error);
+    }
+  };
+
+  const checkTrustlinesSwap = async() => {
+    try {
+      const ethTrustline = await isTrustlineRequired( 'ETH' , 'GDHPD2PT2HQEMG2XGLSSMSPQTXM5TL3WLU6BLDQ2SMWUVBOX2Y4ZKUUA' , wallet); // Call isTrustline for ETH
+      setTrustlineETHSwap(ethTrustline);
+    } catch (error) {
+      console.error("Failed to check trustlines:", error);
+    }
+  }
+
+  // Call checkTrustlines when walletAddress changes
+  useEffect(() => {
+    if (walletAddress) {
+      checkTrustlinesSwap();
+    }
+  }, [walletAddress , setTrustlineETH]);
+
+  // Add this useEffect to check trustlines when they are set
+  useEffect(() => {
+    checkTrustlines();
+    checkTrustlinesSwap();
+  }, [trustlineETH, trustlineStETH]);
 
   if (loading) {
     return <Preloader />
@@ -320,7 +362,7 @@ export default function Dashboard() {
               <LayoutDashboard className="h-4 w-4 text-[#4fc3f7]" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-[#EAFF66]">{mockData.stakedAssets} XLM</div>
+              <div className="text-2xl font-bold text-[#EAFF66]">{mockData.stakedAssets === 500 ? 0 : mockData.stakedAssets / 10 ** 7} ETH</div>
             </CardContent>
           </Card>
           <Card className="bg-[#0f2744] border-[#1e3a5f] rounded-none">
@@ -382,15 +424,31 @@ export default function Dashboard() {
                       className="bg-[#0a1929] border-[#1e3a5f] text-[#a0b4c7] placeholder:text-[#a0b4c7]/50 rounded-none"
                     />
                   </div>
+                  {/* Check trustlines and show button if needed */}
+                  {!trustlineETH && (
+                    <Button onClick={async() => {
+                      await setTrustline('ETH' , 'GDHPD2PT2HQEMG2XGLSSMSPQTXM5TL3WLU6BLDQ2SMWUVBOX2Y4ZKUUA' , wallet)
+                    checkTrustlines();} 
+                    } className="bg-[#4fc3f7] hover:bg-[#4fc3f7]/80 text-[#EAFF66] rounded-none">
+                      Set Trustline for ETH
+                    </Button>
+                  )}
+                  {!trustlineStETH && (
+                    <Button onClick={async() => {
+                      await setTrustline('stETH' , 'GDZ7SGRSOKOMOENHDBXDYNC77LBP6YRILWXFKL2K6COXVSAE27KHAVQL' , wallet)
+                      checkTrustlines();}} className="bg-[#4fc3f7] hover:bg-[#4fc3f7]/80 text-[#EAFF66] rounded-none">
+                      Set Trustline for stETH
+                    </Button>
+                  )}
                   <Button onClick={handleStake} className="bg-[#4fc3f7] hover:bg-[#4fc3f7]/80 text-[#EAFF66] rounded-none">Stake</Button>
                   {stakeProgress > 0 && (
                     <div className="space-y-2">
-                      <Progress value={stakeProgress} className="w-full bg-[#1e3a5f] rounded-none" />
+                      <Progress value={stakeProgress} className="w-full bg-[#1e3f5f] rounded-none" />
                       <p className="text-sm">Staking in progress: {stakeProgress}%</p>
                     </div>
                   )}
                   {stakeComplete && (
-                    <Alert className="bg-[#1e3a5f] border-[#4fc3f7] rounded-none">
+                    <Alert className="bg-[#1e3f5f] border-[#4fc3f7] rounded-none">
                       <AlertTitle className="text-[#4fc3f7]">Success</AlertTitle>
                       <AlertDescription>
                         Your stake transaction has been completed successfully:
@@ -570,6 +628,14 @@ export default function Dashboard() {
                       className="bg-[#0a1929] border-[#1e3a5f] text-[#a0b4c7] placeholder:text-[#a0b4c7]/50 rounded-none"
                     />
                   </div>
+                  {!trustlineETHSwap && (
+                    <Button onClick={async() => {
+                      await setTrustline('ETH' , 'GDHPD2PT2HQEMG2XGLSSMSPQTXM5TL3WLU6BLDQ2SMWUVBOX2Y4ZKUUA' , wallet)
+                    checkTrustlinesSwap();} 
+                    } className="bg-[#4fc3f7] hover:bg-[#4fc3f7]/80 text-[#EAFF66] rounded-none">
+                      Set Trustline for ETH
+                    </Button>
+                  )}
                   <Button
                     onClick={handleSwap}
                     className="bg-[#4fc3f7] hover:bg-[#4fc3f7]/80 text-[#EAFF66] rounded-none"
