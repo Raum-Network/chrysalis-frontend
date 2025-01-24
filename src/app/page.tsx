@@ -503,7 +503,7 @@ export default function Dashboard() {
                       className="bg-[#0a1929] border-[#1e3a5f] text-[#a0b4c7] placeholder:text-[#a0b4c7]/50 rounded-none"
                     />
                   </div>
-                  <Button onClick={handleUnstake} className="bg-[#4fc3f7] hover:bg-[#4fc3f7]/80 text-[#EAFF66] rounded-none">Unstake</Button>
+                  {walletAddress && (<Button onClick={handleUnstake} className="bg-[#4fc3f7] hover:bg-[#4fc3f7]/80 text-[#EAFF66] rounded-none">Unstake</Button>)}
                   {unstakeProgress > 0 && (
                     <div className="space-y-2">
                       <Progress value={unstakeProgress} className="w-full bg-[#1e3a5f] rounded-none" />
@@ -637,7 +637,7 @@ export default function Dashboard() {
                       className="bg-[#0a1929] border-[#1e3a5f] text-[#a0b4c7] placeholder:text-[#a0b4c7]/50 rounded-none"
                     />
                   </div>
-                  {!trustlineETH && (
+                  {walletAddress && !trustlineETH && (
                     <Button onClick={async() => {
                       await setTrustline('ETH' , 'GDHPD2PT2HQEMG2XGLSSMSPQTXM5TL3WLU6BLDQ2SMWUVBOX2Y4ZKUUA' , wallet)
                     checkTrustlines();} 
