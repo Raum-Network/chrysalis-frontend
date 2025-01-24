@@ -64,7 +64,6 @@ export default function Dashboard() {
   const [updateTrigger, setUpdateTrigger] = useState(0) // Add this state
   const [debouncedSwapFromAmount, setDebouncedSwapFromAmount] = useState('');
   const [trustlineETH, setTrustlineETH] = useState(true);
-  const [trustlineETHSwap, setTrustlineETHSwap] = useState(true);
   const [trustlineStETH, setTrustlineStETH] = useState(true);
 
   // Debounce logic for the swap-from-amount input
@@ -293,27 +292,27 @@ export default function Dashboard() {
     }
   };
 
-  const checkTrustlinesSwap = async() => {
-    try {
-      const ethTrustline = await isTrustlineRequired( 'ETH' , 'GDHPD2PT2HQEMG2XGLSSMSPQTXM5TL3WLU6BLDQ2SMWUVBOX2Y4ZKUUA' , wallet); // Call isTrustline for ETH
-      setTrustlineETHSwap(ethTrustline);
-    } catch (error) {
-      console.error("Failed to check trustlines:", error);
-    }
-  }
+  // const checkTrustlinesSwap = async() => {
+  //   try {
+  //     const ethTrustline = await isTrustlineRequired( 'ETH' , 'GDHPD2PT2HQEMG2XGLSSMSPQTXM5TL3WLU6BLDQ2SMWUVBOX2Y4ZKUUA' , wallet); // Call isTrustline for ETH
+  //     setTrustlineETHSwap(ethTrustline);
+  //   } catch (error) {
+  //     console.error("Failed to check trustlines:", error);
+  //   }
+  // }
 
   // Call checkTrustlines when walletAddress changes
-  useEffect(() => {
-    if (walletAddress) {
-      checkTrustlinesSwap();
-    }
-  }, [walletAddress , setTrustlineETH]);
+  // useEffect(() => {
+  //   if (walletAddress) {
+  //     checkTrustlinesSwap();
+  //   }
+  // }, [walletAddress , setTrustlineETH]);
 
   // Add this useEffect to check trustlines when they are set
   useEffect(() => {
     checkTrustlines();
-    checkTrustlinesSwap();
-  }, [trustlineETH, trustlineStETH]);
+    // checkTrustlinesSwap();
+  }, [trustlineETH, trustlineStETH , wallet , walletAddress]);
 
   if (loading) {
     return <Preloader />
@@ -628,10 +627,10 @@ export default function Dashboard() {
                       className="bg-[#0a1929] border-[#1e3a5f] text-[#a0b4c7] placeholder:text-[#a0b4c7]/50 rounded-none"
                     />
                   </div>
-                  {!trustlineETHSwap && (
+                  {!trustlineETH && (
                     <Button onClick={async() => {
                       await setTrustline('ETH' , 'GDHPD2PT2HQEMG2XGLSSMSPQTXM5TL3WLU6BLDQ2SMWUVBOX2Y4ZKUUA' , wallet)
-                    checkTrustlinesSwap();} 
+                    checkTrustlines();} 
                     } className="bg-[#4fc3f7] hover:bg-[#4fc3f7]/80 text-[#EAFF66] rounded-none">
                       Set Trustline for ETH
                     </Button>
