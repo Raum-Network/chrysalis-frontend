@@ -75,7 +75,7 @@ export const unStakeAssets = async (amount: string, wallet: AlbedoWallet) => {
         })
             .addOperation(contract.call("unstake_eth", ...[
                 nativeToScVal(address, { type: "address" }),
-                nativeToScVal(amount, { type: "i128" }),
+                nativeToScVal(Number(amount) * (10 ** 7), { type: "i128" }),
             ]))
             .setTimeout(500)
             .build();

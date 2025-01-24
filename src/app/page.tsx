@@ -627,7 +627,7 @@ export default function Dashboard() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="swap-to-amount" className="text-[#4fc3f7]">You will receive</Label>
+                    <Label htmlFor="swap-to-amount" className="text-[#4fc3f7]">You will receive minimum</Label>
                     <Input
                       id="swap-to-amount"
                       type="number"
