@@ -17,9 +17,6 @@ import AnimatedTitle from './AnimatedTitle'
 import { AlbedoWallet } from '@/services/wallets/AlbedoWallet'
 import { stakeAssets, unStakeAssets, swapAssets, getSwapAmount } from '../components/staking'
 
-
-
-
 // Mock data (replace with actual data fetching logic)
 const mockData = {
   walletBalance: 1000,
@@ -64,6 +61,25 @@ export default function Dashboard() {
   const [hash, setHash] = useState('')
   const [wallet] = useState(new AlbedoWallet())
   const [walletAddress, setWalletAddress] = useState<string | null>(null)
+  const [debouncedSwapFromAmount, setDebouncedSwapFromAmount] = useState('');
+
+  // Debounce logic for the swap-from-amount input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSwapFromAmount(swapFromAmount);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [swapFromAmount]);
+
+  // Trigger swap amount calculation when the debounced value changes
+  useEffect(() => {
+    if (debouncedSwapFromAmount !== '') {
+      handleSwapFromChange(debouncedSwapFromAmount);
+    }
+  }, [debouncedSwapFromAmount]);
+
+
 
   useEffect(() => {
     setTheme('dark')
@@ -133,11 +149,17 @@ export default function Dashboard() {
     }
   }
 
-  const handleSwapFromChange = async(value: string) => {
-    setSwapFromAmount(value)
-    // Simulate real-time price conversion (replace with actual conversion logic)
-    setSwapToAmount(await getSwapAmount(addresses[swapFrom as keyof typeof addresses], addresses[swapTo as keyof typeof addresses], swapFromAmount, wallet))
-  }
+  const handleSwapFromChange = async (value: string) => {
+    setSwapFromAmount(value);
+    setSwapToAmount(
+      await getSwapAmount(
+        addresses[swapFrom as keyof typeof addresses],
+        addresses[swapTo as keyof typeof addresses],
+        value,
+        wallet
+      )
+    );
+  };
 
   const handleConnectWallet = async () => {
     try {
@@ -164,6 +186,7 @@ export default function Dashboard() {
 
     }
   };
+  
 
   const handleDisconnectWallet = async () => {
     try {
@@ -202,7 +225,7 @@ export default function Dashboard() {
           </Button>
         ) : (
           <div className="flex items-center space-x-4">
-            <span className="text-[#4fc3f7]">{formatAddress(walletAddress)}</span>
+            {/* <span className="text-[#4fc3f7]">{formatAddress(walletAddress)}</span> */}
             <Button
               variant="outline"
               className="border-red-500 text-red-500 hover:bg-red-500/10 rounded-none"
@@ -255,10 +278,10 @@ export default function Dashboard() {
         </div>
 
         <Tabs defaultValue="stake" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-[#0f2744] border border-[#1e3a5f] rounded-none">
+          <TabsList className="grid w-full grid-cols-3 bg-[#0f2744] border border-[#1e3a5f] rounded-none">
             <TabsTrigger value="stake" className="data-[state=active]:bg-[#1e3a5f] data-[state=active]:text-[#4fc3f7] rounded-none">Stake</TabsTrigger>
             <TabsTrigger value="unstake" className="data-[state=active]:bg-[#1e3a5f] data-[state=active]:text-[#4fc3f7] rounded-none">Unstake</TabsTrigger>
-            <TabsTrigger value="bridge" className="data-[state=active]:bg-[#1e3a5f] data-[state=active]:text-[#4fc3f7] rounded-none">Bridge</TabsTrigger>
+            {/* <TabsTrigger value="bridge" className="data-[state=active]:bg-[#1e3a5f] data-[state=active]:text-[#4fc3f7] rounded-none">Bridge</TabsTrigger> */}
             <TabsTrigger value="swap" className="data-[state=active]:bg-[#1e3a5f] data-[state=active]:text-[#4fc3f7] rounded-none">Swap</TabsTrigger>
           </TabsList>
           <TabsContent value="stake" className="mt-4">
@@ -413,7 +436,98 @@ export default function Dashboard() {
               </CardContent>
             </Card>
           </TabsContent>
-          <TabsContent value="swap" className="mt-4"> <Card className="bg-[#0f2744] border-[#1e3a5f] rounded-none"> <CardHeader> <CardTitle className="text-[#4fc3f7]">Swap Assets</CardTitle> <CardDescription>Swap between different assets</CardDescription> </CardHeader> <CardContent> <div className="flex flex-col space-y-4"> <div className="flex items-center space-x-4"> <div className="flex-1 space-y-2"> <Label htmlFor="swap-from" className="text-[#4fc3f7]">From</Label> <Select value={swapFrom} onValueChange={setSwapFrom}> <SelectTrigger id="swap-from" className="bg-[#0a1929] border-[#1e3a5f] text-[#a0b4c7] rounded-none"> <SelectValue placeholder="Select asset" /> </SelectTrigger> <SelectContent className="bg-[#0f2744] border-[#1e3a5f] rounded-none"> {swapPairs.map((pair) => (<SelectItem key={pair.from} value={pair.from}>{pair.from}</SelectItem>))} </SelectContent> </Select> </div> <Button onClick={interchangeTokens} className="p-2 bg-[#1e3a5f] hover:bg-[#4fc3f7] text-[#4fc3f7] rounded-full mt-auto"> <ArrowRightLeft className="h-6 w-6" /> </Button> <div className="flex-1 space-y-2"> <Label htmlFor="swap-to" className="text-[#4fc3f7]">To</Label> <Select value={swapTo} onValueChange={setSwapTo}> <SelectTrigger id="swap-to" className="bg-[#0a1929] border-[#1e3a5f] text-[#a0b4c7] rounded-none"> <SelectValue placeholder="Select asset" /> </SelectTrigger> <SelectContent className="bg-[#0f2744] border-[#1e3a5f] rounded-none"> {swapPairs.map((pair) => (<SelectItem key={pair.to} value={pair.to}>{pair.to}</SelectItem>))} </SelectContent> </Select> </div> </div> <div className="space-y-2"> <Label htmlFor="swap-from-amount" className="text-[#4fc3f7]">Amount</Label> <Input id="swap-from-amount" type="number" placeholder={`Enter amount in ${swapFrom}`} value={swapFromAmount} onChange={async(e) => await handleSwapFromChange(e.target.value)} className="bg-[#0a1929] border-[#1e3a5f] text-[#a0b4c7] placeholder:text-[#a0b4c7]/50 rounded-none" /> </div> <div className="space-y-2"> <Label htmlFor="swap-to-amount" className="text-[#4fc3f7]">You will receive</Label> <Input id="swap-to-amount" type="number" placeholder={`Amount in ${swapTo}`} value={swapToAmount} readOnly className="bg-[#0a1929] border-[#1e3a5f] text-[#a0b4c7] placeholder:text-[#a0b4c7]/50 rounded-none" /> </div> <Button onClick={handleSwap} className="bg-[#4fc3f7] hover:bg-[#4fc3f7]/80 text-[#EAFF66] rounded-none"> <ArrowRightLeft className="mr-2 h-4 w-4" /> Swap </Button> {swapProgress > 0 && (<div className="space-y-2"> <Progress value={swapProgress} className="w-full bg-[#1e3a5f] rounded-none" /> <p className="text-sm">Swap in progress: {swapProgress}%</p> </div>)} {swapComplete && (<Alert className="bg-[#1e3f5f] border-[#4fc3f7] rounded-none"> <AlertTitle className="text-[#4fc3f7]">Success</AlertTitle> <AlertDescription>Your swap transaction has been completed successfully.</AlertDescription> </Alert>)} </div></CardContent> </Card> </TabsContent>
+          <TabsContent value="swap" className="mt-4">
+            <Card className="bg-[#0f2744] border-[#1e3a5f] rounded-none">
+              <CardHeader>
+                <CardTitle className="text-[#4fc3f7]">Swap Assets</CardTitle>
+                <CardDescription>Swap between different assets</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col space-y-4">
+                  <div className="flex items-center space-x-4">
+                    <div className="flex-1 space-y-2">
+                      <Label htmlFor="swap-from" className="text-[#4fc3f7]">From</Label>
+                      <Select value={swapFrom} onValueChange={setSwapFrom}>
+                        <SelectTrigger className="bg-[#0a1929] border-[#1e3a5f] text-[#a0b4c7] rounded-none">
+                          <SelectValue placeholder="Select asset" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-[#0f2744] border-[#1e3a5f] rounded-none">
+                          {swapPairs.map((pair) => (
+                            <SelectItem key={pair.from} value={pair.from}>
+                              {pair.from}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button
+                      onClick={interchangeTokens}
+                      className="p-2 bg-[#1e3a5f] hover:bg-[#4fc3f7] text-[#4fc3f7] rounded-full mt-auto"
+                    >
+                      <ArrowRightLeft className="h-6 w-6" />
+                    </Button>
+                    <div className="flex-1 space-y-2">
+                      <Label htmlFor="swap-to" className="text-[#4fc3f7]">To</Label>
+                      <Select value={swapTo} onValueChange={setSwapTo}>
+                        <SelectTrigger className="bg-[#0a1929] border-[#1e3a5f] text-[#a0b4c7] rounded-none">
+                          <SelectValue placeholder="Select asset" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-[#0f2744] border-[#1e3a5f] rounded-none">
+                          {swapPairs.map((pair) => (
+                            <SelectItem key={pair.to} value={pair.to}>
+                              {pair.to}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="swap-from-amount" className="text-[#4fc3f7]">Amount</Label>
+                    <Input
+                      id="swap-from-amount"
+                      type="number"
+                      placeholder={`Enter amount in ${swapFrom}`}
+                      value={swapFromAmount}
+                      onChange={(e) => setSwapFromAmount(e.target.value)}
+                      className="bg-[#0a1929] border-[#1e3a5f] text-[#a0b4c7] placeholder:text-[#a0b4c7]/50 rounded-none"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="swap-to-amount" className="text-[#4fc3f7]">You will receive</Label>
+                    <Input
+                      id="swap-to-amount"
+                      type="number"
+                      placeholder={`Amount in ${swapTo}`}
+                      value={swapToAmount}
+                      readOnly
+                      className="bg-[#0a1929] border-[#1e3a5f] text-[#a0b4c7] placeholder:text-[#a0b4c7]/50 rounded-none"
+                    />
+                  </div>
+                  <Button
+                    onClick={handleSwap}
+                    className="bg-[#4fc3f7] hover:bg-[#4fc3f7]/80 text-[#EAFF66] rounded-none"
+                  >
+                    <ArrowRightLeft className="mr-2 h-4 w-4" /> Swap
+                  </Button>
+                  {swapProgress > 0 && (
+                    <div className="space-y-2">
+                      <Progress value={swapProgress} className="w-full bg-[#1e3a5f] rounded-none" />
+                      <p className="text-sm">Swap in progress: {swapProgress}%</p>
+                    </div>
+                  )}
+                  {swapComplete && (
+                    <Alert className="bg-[#1e3f5f] border-[#4fc3f7] rounded-none">
+                      <AlertTitle className="text-[#4fc3f7]">Success</AlertTitle>
+                      <AlertDescription>
+                        Your swap transaction has been completed successfully.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
 
         <Card className="bg-[#0f2744] border-[#1e3a5f] rounded-none">

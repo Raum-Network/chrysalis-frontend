@@ -3,7 +3,7 @@
 import { AlbedoWallet } from '@/services/wallets/AlbedoWallet';
 import { nativeToScVal, Horizon, rpc, TransactionBuilder, Networks, Contract, Transaction, scValToNative } from 'stellar-sdk';
 
-const STAKING_CONTRACT_ADDRESS = 'CD4NK6ZV6MGJBQZA66LJPTM5NMDFLHYLBUCDMTG5KK223D2DLVULXJ5H';
+const STAKING_CONTRACT_ADDRESS = 'CAZVQKKCWYMGPWFKTAXUTNWT4GP2JFWPSX4YT4N2IOQQSXFMT5OPP4AO';
 
 export const stakeAssets = async (amount: string, wallet: AlbedoWallet) => {
     try {
@@ -158,6 +158,8 @@ export const getSwapAmount = async (tokenA: string, tokenB: string, amount: stri
         const account = await server.getAccount(address);
         console.log("Loaded account:", account);
 
+        console.log(amount)
+
         const contract = new Contract("CAPFLO7AA4RG3ZLIEPYQGYGBGFNBKXPIXVA5YQHNODJ37S2WCMHZB3L7");
 
         // Create a transaction
@@ -176,11 +178,11 @@ export const getSwapAmount = async (tokenA: string, tokenB: string, amount: stri
 
         let preparedTransaction = await server.simulateTransaction(transaction);
 
-        interface newSimulateResponse extends rpc.Api.SimulateTransactionSuccessResponse {
-            result:any
-        }
+        // interface newSimulateResponse extends rpc.Api.SimulateTransactionSuccessResponse {
+        //     result:any
+        // }
 
-        let data: rpc.Api.SimulateTransactionSuccessResponse = preparedTransaction as rpc.Api.SimulateTransactionSuccessResponse;
+        // let data: rpc.Api.SimulateTransactionSuccessResponse = preparedTransaction as rpc.Api.SimulateTransactionSuccessResponse;
 
         if (preparedTransaction && "result" in preparedTransaction) {
             const retval = preparedTransaction.result?.retval;
