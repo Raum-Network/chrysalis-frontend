@@ -43,7 +43,7 @@ export class AlbedoWallet {
     }
   }
 
-  async getBalance(): Promise<string> {
+  async getBalance(token:string): Promise<string> {
     if (!this.publicKey) {
       throw new Error('Wallet not connected');
     }
@@ -52,7 +52,7 @@ export class AlbedoWallet {
       const server = new Horizon.Server('https://horizon-testnet.stellar.org');
       const account = await server.loadAccount(this.publicKey);
       const balance = account.balances.find(
-        b => b.asset_type === 'native'
+        b => b.asset_type === token
       );
       console.log(balance)
       return balance ? balance.balance : '0';

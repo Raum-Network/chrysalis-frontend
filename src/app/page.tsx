@@ -15,7 +15,7 @@ import Link from 'next/link'
 import Preloader from './Preloader'
 import AnimatedTitle from './AnimatedTitle'
 import { AlbedoWallet } from '@/services/wallets/AlbedoWallet'
-import { stakeAssets, unStakeAssets, swapAssets, getSwapAmount } from '../components/staking'
+import { stakeAssets, unStakeAssets, swapAssets, getSwapAmount, getStakedAsset } from '../components/staking'
 
 // Mock data (replace with actual data fetching logic)
 const mockData = {
@@ -61,6 +61,7 @@ export default function Dashboard() {
   const [hash, setHash] = useState('')
   const [wallet] = useState(new AlbedoWallet())
   const [walletAddress, setWalletAddress] = useState<string | null>(null)
+  const [updateTrigger, setUpdateTrigger] = useState(0) // Add this state
   const [debouncedSwapFromAmount, setDebouncedSwapFromAmount] = useState('');
 
   // Debounce logic for the swap-from-amount input
@@ -106,48 +107,113 @@ export default function Dashboard() {
     }, 500)
   }
 
+  // First, create a function to fetch and update balance
+  const updateBalance = async () => {
+    try {
+      const balance = await wallet.getBalance('native');
+      mockData.walletBalance = parseFloat(balance);
+    } catch (error) {
+      console.error("Failed to fetch balance:", error);
+    }
+  };
+
+  const updateStakedAssets = async () => {
+    try {
+      const staked = await getStakedAsset('native', 'native', '0', wallet);
+      mockData.stakedAssets = parseFloat(staked);
+    } catch (error) {
+      console.error("Failed to fetch staked:", error);
+    }
+  };
+
+  // Add this useEffect
+  useEffect(() => {
+    const fetchBalance = async () => {
+      if (walletAddress) {
+        try {
+          const balance = await wallet.getBalance('native');
+          mockData.walletBalance = parseFloat(balance);
+        } catch (error) {
+          console.error("Failed to fetch balance:", error);
+        }
+      }
+    };
+    const updateStakedAssets = async () => {
+      try {
+        const staked = await getStakedAsset('native', 'native', '0', wallet);
+        mockData.stakedAssets = parseFloat(staked);
+      } catch (error) {
+        console.error("Failed to fetch staked:", error);
+      }
+    };
+    
+    [fetchBalance() , updateStakedAssets()]
+  }, [walletAddress, updateTrigger, wallet]);
+
+  // Update handleConnectWallet
+  const handleConnectWallet = async () => {
+    try {
+      console.log("Attempting to connect wallet...");
+      if (!wallet) {
+        console.error("Wallet instance not initialized");
+        return;
+      }
+
+      const address = await wallet.connect();
+      setWalletAddress(address);
+      await updateBalance(); // Update balance after connection
+      setUpdateTrigger(prev => prev + 1);
+      
+    } catch (error) {
+      console.error("Wallet connection error:", error);
+    }
+  };
+
+  // Update handleStake
   const handleStake = async () => {
     try {
       setStakeProgress(0);
-      const result = await stakeAssets(stakeAmount, wallet); // Call stakeAssets
+      const result = await stakeAssets(stakeAmount, wallet);
       setHash(result.tx_hash);
       simulateTransaction(setStakeProgress, setStakeComplete);
-
+      await updateBalance(); // Update balance after staking
+      setUpdateTrigger(prev => prev + 1);
     } catch (error) {
       console.error("Staking failed:", error);
       setStakeProgress(0);
     }
-  }
+  };
 
+  // Update handleUnstake
   const handleUnstake = async () => {
     try {
       setUnstakeProgress(0);
-      const result = await unStakeAssets(unstakeAmount, wallet); // Call stakeAssets
+      const result = await unStakeAssets(unstakeAmount, wallet);
       setHash(result.tx_hash);
       simulateTransaction(setUnstakeProgress, setUnstakeComplete);
-
+      await updateBalance(); // Update balance after unstaking
+      setUpdateTrigger(prev => prev + 1);
     } catch (error) {
-      console.error("Staking failed:", error);
-      setStakeProgress(0);
+      console.error("Unstaking failed:", error);
+      setUnstakeProgress(0);
     }
+  };
 
-  }
-
+  // Update handleSwap
   const handleSwap = async () => {
     try {
       const fromAddress = addresses[swapFrom as keyof typeof addresses];
       const toAddress = addresses[swapTo as keyof typeof addresses];
-      const result = await swapAssets(fromAddress, toAddress, swapFromAmount, wallet); // Assuming swapAssets is imported
+      const result = await swapAssets(fromAddress, toAddress, swapFromAmount, wallet);
       setHash(result.tx_hash);
       simulateTransaction(setSwapProgress, setSwapComplete);
-
-      // Update the address based on the selected tokens
-
+      await updateBalance(); // Update balance after swapping
+      setUpdateTrigger(prev => prev + 1);
     } catch (error) {
       console.error("Swap failed:", error);
       setSwapProgress(0);
     }
-  }
+  };
 
   const handleSwapFromChange = async (value: string) => {
     setSwapFromAmount(value);
