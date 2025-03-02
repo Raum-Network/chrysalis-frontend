@@ -14,7 +14,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Chrysalis",
+  title: "Chrysalis - SwiftStake",
   description: "Chrysalis By raum.network",
 };
 
