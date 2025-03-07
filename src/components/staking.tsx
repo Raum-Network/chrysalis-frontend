@@ -29,7 +29,7 @@ export const stakeAssets = async (amount: string, wallet: AlbedoWallet) => {
         })
             .addOperation(contract.call("stake_eth", ...[
                 nativeToScVal(address, { type: "address" }),
-                nativeToScVal(Number(amount) * (10 ** 7), { type: "i128" }),
+                nativeToScVal((Number(amount) * (10 ** 7)).toFixed(0), { type: "i128" }),
             ]))
             .setTimeout(500)
             .build();
@@ -75,7 +75,7 @@ export const unStakeAssets = async (amount: string, wallet: AlbedoWallet) => {
         })
             .addOperation(contract.call("unstake_eth", ...[
                 nativeToScVal(address, { type: "address" }),
-                nativeToScVal(Number(amount) * (10 ** 7), { type: "i128" }),
+                nativeToScVal((Number(amount) * (10 ** 7)).toFixed(0), { type: "i128" }),
             ]))
             .setTimeout(500)
             .build();
@@ -118,7 +118,7 @@ export const swapAssets = async (tokenA: string, tokenB: string, amount: string,
             networkPassphrase: Networks.TESTNET,
         })
             .addOperation(contract.call("swap_exact_tokens_for_tokens", ...[
-                nativeToScVal(Number(amount) * (10 ** 7), { type: "i128" }),
+                nativeToScVal((Number(amount) * (10 ** 7)).toFixed(0), { type: "i128" }),
                 nativeToScVal("0", { type: "i128" }),
                 nativeToScVal([nativeToScVal(tokenA, { type: "address" }), nativeToScVal(tokenB, { type: "address" })], { type: "Vec" }),
                 nativeToScVal(address, { type: "address" }),
@@ -168,7 +168,7 @@ export const getSwapAmount = async (tokenA: string, tokenB: string, amount: stri
             networkPassphrase: Networks.TESTNET,
         })
             .addOperation(contract.call("router_get_amounts_out", ...[
-                nativeToScVal(Number(amount) * (10 ** 7), { type: "i128" }),
+                nativeToScVal((parseFloat(amount) * (10 ** 7)).toFixed(0), { type: "i128" }),
                 nativeToScVal([nativeToScVal(tokenA, { type: "address" }), nativeToScVal(tokenB, { type: "address" })], { type: "Vec" }),
             ]))
             .setTimeout(500)

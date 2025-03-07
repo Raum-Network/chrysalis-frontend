@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useTheme } from 'next-themes'
-import { Wallet, Percent, DollarSign, LayoutDashboard, ArrowRightLeft } from 'lucide-react'
+import { Wallet, Percent, DollarSign, LayoutDashboard, ArrowRightLeft, Wallet2Icon, WalletCards, WandSparklesIcon, DollarSignIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -24,6 +24,7 @@ const mockData = {
   currentAPY: 0,
   earnedYield: 25.5,
   supportedAssets: ['ETH'],
+  unstakeAssets:['stETH'],
   apyRates: {
     Lido: 4.8,
     RocketPool: 5.2,
@@ -211,33 +212,6 @@ export default function Dashboard() {
     );
   };
 
-  // const handleConnectWallet = async () => {
-  //   try {
-  //     console.log("Attempting to connect wallet...");
-  //     if (!wallet) {
-  //       console.error("Wallet instance not initialized");
-  //       return;
-  //     }
-
-  //     const address = await wallet.connect();
-  //     console.log("Connected wallet address:", address);
-
-  //     setWalletAddress(address);
-
-  //     try {
-  //       const balance = await wallet.getBalance('native');
-  //       console.log("Wallet balance:", balance);
-  //       mockData.walletBalance = parseFloat(balance);
-       
-  //     } catch (balanceError) {
-  //       console.error("Failed to fetch balance:", balanceError);
-  //     }
-  //   } catch (error) {
-  //     console.error("Wallet connection error:", error);
-
-  //   }
-  // };
-
   useEffect(() => {
     const fetchBalance = async () => {
       if (walletAddress) {
@@ -264,7 +238,7 @@ export default function Dashboard() {
     };
     
     [fetchBalance() , updateStakedAssets()]
-  }, [walletAddress, updateTrigger, wallet , handleSwap , handleStake , handleUnstake , handleConnectWallet ]);
+  }, [walletAddress, updateTrigger , hash , wallet , swapComplete , stakeComplete , unstakeComplete , handleConnectWallet ]);
   
 
   const handleDisconnectWallet = async () => {
@@ -330,7 +304,7 @@ export default function Dashboard() {
         <AnimatedTitle />
         {!walletAddress ? (
           <Button
-            variant="outline"
+            // variant="outline"
             className="border-[#4fc3f7] text-[#4fc3f7] hover:bg-[#1e3a5f] rounded-none"
             onClick={handleConnectWallet}
           >
@@ -340,7 +314,7 @@ export default function Dashboard() {
           <div className="flex items-center space-x-4">
             {/* <span className="text-[#4fc3f7]">{formatAddress(walletAddress)}</span> */}
             <Button
-              variant="outline"
+              // variant="outline"
               className="border-red-500 text-red-500 hover:bg-red-500/10 rounded-none"
               onClick={handleDisconnectWallet}
             >
@@ -372,17 +346,17 @@ export default function Dashboard() {
           </Card>
           <Card className="bg-[#0f2744] border-[#1e3a5f] rounded-none">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-[#4fc3f7]">ETH Balance</CardTitle>
-              {/* <Percent className="h-4 w-4 text-[#4fc3f7]" /> */}
+              <CardTitle className="text-sm font-medium text-[#4fc3f7]">Available Balance</CardTitle>
+              <DollarSignIcon className="h-4 w-4 text-[#4fc3f7]" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-[#EAFF66]">{mockData.currentAPY}</div>
+              <div className="text-2xl font-bold text-[#EAFF66]">{mockData.currentAPY} ETH</div>
             </CardContent>
           </Card>
           <Card className="bg-[#0f2744] border-[#1e3a5f] rounded-none">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-[#4fc3f7]">Earned Yield</CardTitle>
-              <DollarSign className="h-4 w-4 text-[#4fc3f7]" />
+              <Percent className="h-4 w-4 text-[#4fc3f7]" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-[#EAFF66]">{mockData.earnedYield} XLM</div>
@@ -423,9 +397,21 @@ export default function Dashboard() {
                     <Input
                       id="stake-amount"
                       type="number"
-                      placeholder="Enter amount to stake"
+                      placeholder=""
                       value={stakeAmount}
-                      onChange={(e) => setStakeAmount(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "-" || e.key === "e") {
+                          e.preventDefault() // Prevent typing "-" or "e" (scientific notation)
+                        }
+                      }}
+                      onChange={(e) => {
+                        const value = e.target.value
+                        // Use regex to limit to 6 decimal places
+                        if (/^\d*\.?\d{0,6}$/.test(value) || value === "") {
+                          setStakeAmount(e.target.value)
+                        }
+                      }}
+                      // onChange={(e) => setStakeAmount(e.target.value)}
                       className="bg-[#0a1929] border-[#1e3a5f] text-[#a0b4c7] placeholder:text-[#a0b4c7]/50 rounded-none"
                     />
                   </div>
@@ -453,16 +439,16 @@ export default function Dashboard() {
                   {stakeProgress > 0 && (
                     <div className="space-y-2">
                       <Progress value={stakeProgress} className="w-full bg-[#1e3f5f] rounded-none" />
-                      <p className="text-sm">Staking in progress: {stakeProgress}%</p>
+                      <p className="text-sm text-[#4fc3f7]">Staking in progress: <span className='text-[#EAFF66]'>{stakeProgress}%</span></p>
                     </div>
                   )}
                   {stakeComplete && (
                     <Alert className="bg-[#1e3f5f] border-[#4fc3f7] rounded-none">
                       <AlertTitle className="text-[#4fc3f7]">Success</AlertTitle>
-                      <AlertDescription>
-                        Your stake transaction has been completed successfully:
-                        <a href={`https://stellar.expert/explorer/testnet/tx/${hash}`} target="_blank" rel="noopener noreferrer">
-                          {hash}
+                      <AlertDescription className='text-[#4fc3f7]'>
+                        Your stake transaction has been completed successfully: 
+                        <a className='text-[#EAFF66]' href={`https://stellar.expert/explorer/testnet/tx/${hash}`} target="_blank" rel="noopener noreferrer">
+                           {' '}{hash}
                         </a>.
                       </AlertDescription>
                     </Alert>
@@ -486,7 +472,7 @@ export default function Dashboard() {
                         <SelectValue placeholder="Select asset" />
                       </SelectTrigger>
                       <SelectContent className="bg-[#0f2744] border-[#1e3a5f] rounded-none">
-                        {mockData.supportedAssets.map((asset) => (
+                        {mockData.unstakeAssets.map((asset) => (
                           <SelectItem key={asset} value={asset}>{asset}</SelectItem>
                         ))}
                       </SelectContent>
@@ -497,9 +483,21 @@ export default function Dashboard() {
                     <Input
                       id="unstake-amount"
                       type="number"
-                      placeholder="Enter amount to unstake"
+                      placeholder=""
                       value={unstakeAmount}
-                      onChange={(e) => setUnstakeAmount(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "-" || e.key === "e") {
+                          e.preventDefault() // Prevent typing "-" or "e" (scientific notation)
+                        }
+                      }}
+                      onChange={(e) => {
+                        const value = e.target.value
+                        // Use regex to limit to 6 decimal places
+                        if (/^\d*\.?\d{0,6}$/.test(value) || value === "") {
+                          setUnstakeAmount(e.target.value)
+                        }
+                      }}
+                      // onChange={(e) => setUnstakeAmount(e.target.value)}
                       className="bg-[#0a1929] border-[#1e3a5f] text-[#a0b4c7] placeholder:text-[#a0b4c7]/50 rounded-none"
                     />
                   </div>
@@ -507,15 +505,15 @@ export default function Dashboard() {
                   {unstakeProgress > 0 && (
                     <div className="space-y-2">
                       <Progress value={unstakeProgress} className="w-full bg-[#1e3a5f] rounded-none" />
-                      <p className="text-sm">Unstaking in progress: {unstakeProgress}%</p>
+                      <p className="text-sm text-[#4fc3f7]">Unstaking in progress: <span className='text-[#EAFF66]'>{unstakeProgress}%</span></p>
                     </div>
                   )}
                   {unstakeComplete && (
                     <Alert className="bg-[#1e3f5f] border-[#4fc3f7] rounded-none">
                       <AlertTitle className="text-[#4fc3f7]">Success</AlertTitle>
                       <AlertDescription> Your unstake transaction has been completed successfully:
-                        <a href={`https://stellar.expert/explorer/testnet/tx/${hash}`} target="_blank" rel="noopener noreferrer">
-                          {hash}
+                        <a className='text-[#EAFF66]' href={`https://stellar.expert/explorer/testnet/tx/${hash}`} target="_blank" rel="noopener noreferrer">
+                          {' '}{hash}
                         </a>.</AlertDescription>
                     </Alert>
                   )}
@@ -620,9 +618,21 @@ export default function Dashboard() {
                     <Input
                       id="swap-from-amount"
                       type="number"
-                      placeholder={`Enter amount in ${swapFrom}`}
+                      placeholder=""
                       value={swapFromAmount}
-                      onChange={(e) => setSwapFromAmount(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "-" || e.key === "e") {
+                          e.preventDefault() // Prevent typing "-" or "e" (scientific notation)
+                        }
+                      }}
+                      onChange={(e) => {
+                        const value = e.target.value
+                        // Use regex to limit to 6 decimal places
+                        if (/^\d*\.?\d{0,6}$/.test(value) || value === "") {
+                          setSwapFromAmount(e.target.value)
+                        }
+                      }}
+                      // onChange={(e) => setSwapFromAmount(e.target.value)}
                       className="bg-[#0a1929] border-[#1e3a5f] text-[#a0b4c7] placeholder:text-[#a0b4c7]/50 rounded-none"
                     />
                   </div>
@@ -631,7 +641,7 @@ export default function Dashboard() {
                     <Input
                       id="swap-to-amount"
                       type="number"
-                      placeholder={`Amount in ${swapTo}`}
+                      placeholder=""
                       value={swapToAmount}
                       readOnly
                       className="bg-[#0a1929] border-[#1e3a5f] text-[#a0b4c7] placeholder:text-[#a0b4c7]/50 rounded-none"
@@ -656,15 +666,15 @@ export default function Dashboard() {
                   {swapProgress > 0 && (
                     <div className="space-y-2">
                       <Progress value={swapProgress} className="w-full bg-[#1e3a5f] rounded-none" />
-                      <p className="text-sm">Swap in progress: {swapProgress}%</p>
+                      <p className="text-sm text-[#4fc3f7]">Swap in progress: <span className='text-[#EAFF66]'>{swapProgress}%</span></p>
                     </div>
                   )}
                   {swapComplete && (
                     <Alert className="bg-[#1e3f5f] border-[#4fc3f7] rounded-none">
                       <AlertTitle className="text-[#4fc3f7]">Success</AlertTitle>
-                      <AlertDescription> Your swap transaction has been completed successfully:
-                        <a href={`https://stellar.expert/explorer/testnet/tx/${hash}`} target="_blank" rel="noopener noreferrer">
-                          {hash}
+                      <AlertDescription className='text-[#4fc3f7]'> Your swap transaction has been completed successfully:
+                        <a className='text-[#EAFF66]'href={`https://stellar.expert/explorer/testnet/tx/${hash}`} target="_blank" rel="noopener noreferrer">
+                          {' '}{hash}
                         </a>.</AlertDescription>
                     </Alert>
                   )}
@@ -683,8 +693,9 @@ export default function Dashboard() {
             <div className="space-y-2">
               {Object.entries(mockData.apyRates).map(([protocol, rate]) => (
                 <div key={protocol} className="flex justify-between items-center">
-                  <span className="text-[#EAFF66]">{protocol}</span>
-                  <span className="font-bold text-[#4fc3f7]">{rate}%</span>
+                  {/* <span className="text-[#EAFF66]">{protocol}</span> */}
+                  <span className="text-[#4fc3f7]">{protocol}</span>
+                  <span className="font-bold text-[#EAFF66]">{rate}%</span>
                 </div>
               ))}
             </div>
