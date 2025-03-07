@@ -407,7 +407,7 @@ export default function Dashboard() {
                       onChange={(e) => {
                         const value = e.target.value
                         // Use regex to limit to 6 decimal places
-                        if (/^\d*\.?\d{0,6}$/.test(value) || value === "") {
+                        if (/^\d*\.?\d{0,7}$/.test(value) || value === "") {
                           setStakeAmount(e.target.value)
                         }
                       }}
@@ -493,7 +493,7 @@ export default function Dashboard() {
                       onChange={(e) => {
                         const value = e.target.value
                         // Use regex to limit to 6 decimal places
-                        if (/^\d*\.?\d{0,6}$/.test(value) || value === "") {
+                        if (/^\d*\.?\d{0,7}$/.test(value) || value === "") {
                           setUnstakeAmount(e.target.value)
                         }
                       }}
@@ -628,7 +628,7 @@ export default function Dashboard() {
                       onChange={(e) => {
                         const value = e.target.value
                         // Use regex to limit to 6 decimal places
-                        if (/^\d*\.?\d{0,6}$/.test(value) || value === "") {
+                        if (/^\d*\.?\d{0,7}$/.test(value) || value === "") {
                           setSwapFromAmount(e.target.value)
                         }
                       }}
