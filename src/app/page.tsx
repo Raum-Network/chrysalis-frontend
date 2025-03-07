@@ -511,7 +511,7 @@ export default function Dashboard() {
                   {unstakeComplete && (
                     <Alert className="bg-[#1e3f5f] border-[#4fc3f7] rounded-none">
                       <AlertTitle className="text-[#4fc3f7]">Success</AlertTitle>
-                      <AlertDescription> Your unstake transaction has been completed successfully:
+                      <AlertDescription className="text-[#4fc3f7]"> Your unstake transaction has been completed successfully:
                         <a className='text-[#EAFF66]' href={`https://stellar.expert/explorer/testnet/tx/${hash}`} target="_blank" rel="noopener noreferrer">
                           {' '}{hash}
                         </a>.</AlertDescription>
