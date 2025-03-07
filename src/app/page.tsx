@@ -709,13 +709,13 @@ export default function Dashboard() {
             © 2024 - 2025 Chrysalis by Raum Network. All rights reserved.
           </div>
           <nav className="flex space-x-4 text-sm">
-            <Link href="/terms" className="hover:text-[#4fc3f7] transition-colors">
+            <Link target='_blank' href="https://store.raum.network/ipfs/bafkreidaowmqr3hcqbajmv6cm6srqkclyrzjibz4wezsg65vzqv63qh2ym" className="hover:text-[#4fc3f7] transition-colors">
               Terms & Conditions
             </Link>
-            <Link href="/privacy" className="hover:text-[#4fc3f7] transition-colors">
+            <Link target='_blank' href="https://store.raum.network/ipfs/bafkreicly3fn7wf3ouwyuuh4wawzq4yl3auoszqqwo4ab4a4nk3rbkxqbe" className="hover:text-[#4fc3f7] transition-colors">
               Privacy Policy
             </Link>
-            <Link href="/support" className="hover:text-[#4fc3f7] transition-colors">
+            <Link target='_blank' href="mailto:supoort@raum.network" className="hover:text-[#4fc3f7] transition-colors">
               Support
             </Link>
           </nav>
