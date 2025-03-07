@@ -304,7 +304,7 @@ export default function Dashboard() {
         <AnimatedTitle />
         {!walletAddress ? (
           <Button
-            // variant="outline"
+            variant="outline"
             className="border-[#4fc3f7] text-[#4fc3f7] hover:bg-[#1e3a5f] rounded-none"
             onClick={handleConnectWallet}
           >
@@ -314,7 +314,7 @@ export default function Dashboard() {
           <div className="flex items-center space-x-4">
             {/* <span className="text-[#4fc3f7]">{formatAddress(walletAddress)}</span> */}
             <Button
-              // variant="outline"
+              variant="outline"
               className="border-red-500 text-red-500 hover:bg-red-500/10 rounded-none"
               onClick={handleDisconnectWallet}
             >
