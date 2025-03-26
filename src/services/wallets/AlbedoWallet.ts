@@ -71,7 +71,7 @@ export class AlbedoWallet {
       const account = await server.loadAccount(this.publicKey);
       console.log(account.balances , "wwwwww")
       const balance = account.balances.find(
-        b => b.asset_type === "credit_alphanum4" && b.asset_code === "ETH" && b.asset_issuer === "GDHPD2PT2HQEMG2XGLSSMSPQTXM5TL3WLU6BLDQ2SMWUVBOX2Y4ZKUUA"
+        b => b.asset_type === "credit_alphanum4" && b.asset_code === "ETH" && b.asset_issuer === "GCQTTCUQBBPFDI4TVGJGZMKIM5SY3ZFWFZYWXTVAFOFMZR5QNBIELKH7"
       );
       console.log(balance , "balance")
       return balance ? balance.balance : '0';

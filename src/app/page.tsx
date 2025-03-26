@@ -39,7 +39,7 @@ const swapPairs = [
 
 const addresses = {
   XLM: 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC',
-  ETH: 'CAX7XNACMDW5DT3GFN5TFKOWZPLU3BUNKEVGRN5SVXNTQ2XYHUT7ZND2',
+  ETH: 'CCL4LZRLDFBKD5YSIM22HWNLFQ2ZUZWX7KW3RTAKCVX7D3HQYVFL3W7P',
   // Add other asset addresses as needed
 };
 
@@ -263,8 +263,8 @@ export default function Dashboard() {
   // Function to check trustlines
   const checkTrustlines = async () => {
     try {
-      const ethTrustline = await isTrustlineRequired( 'ETH' , 'GDHPD2PT2HQEMG2XGLSSMSPQTXM5TL3WLU6BLDQ2SMWUVBOX2Y4ZKUUA' , wallet); // Call isTrustline for ETH
-      const stEthTrustline = await isTrustlineRequired( 'stETH' , 'GDZ7SGRSOKOMOENHDBXDYNC77LBP6YRILWXFKL2K6COXVSAE27KHAVQL' , wallet); // Call isTrustline for stETH
+      const ethTrustline = await isTrustlineRequired( 'ETH' , 'GCQTTCUQBBPFDI4TVGJGZMKIM5SY3ZFWFZYWXTVAFOFMZR5QNBIELKH7' , wallet); // Call isTrustline for ETH
+      const stEthTrustline = await isTrustlineRequired( 'stETH' , 'GCQTTCUQBBPFDI4TVGJGZMKIM5SY3ZFWFZYWXTVAFOFMZR5QNBIELKH7' , wallet); // Call isTrustline for stETH
       setTrustlineETH(ethTrustline);
       setTrustlineStETH(stEthTrustline);
     } catch (error) {
@@ -274,7 +274,7 @@ export default function Dashboard() {
 
   // const checkTrustlinesSwap = async() => {
   //   try {
-  //     const ethTrustline = await isTrustlineRequired( 'ETH' , 'GDHPD2PT2HQEMG2XGLSSMSPQTXM5TL3WLU6BLDQ2SMWUVBOX2Y4ZKUUA' , wallet); // Call isTrustline for ETH
+  //     const ethTrustline = await isTrustlineRequired( 'ETH' , 'GCQTTCUQBBPFDI4TVGJGZMKIM5SY3ZFWFZYWXTVAFOFMZR5QNBIELKH7' , wallet); // Call isTrustline for ETH
   //     setTrustlineETHSwap(ethTrustline);
   //   } catch (error) {
   //     console.error("Failed to check trustlines:", error);
@@ -417,7 +417,7 @@ export default function Dashboard() {
                   </div>
                   {walletAddress && !trustlineETH && (
                     <Button onClick={async() => {
-                      await setTrustline('ETH' , 'GDHPD2PT2HQEMG2XGLSSMSPQTXM5TL3WLU6BLDQ2SMWUVBOX2Y4ZKUUA' , wallet)
+                      await setTrustline('ETH' , 'GCQTTCUQBBPFDI4TVGJGZMKIM5SY3ZFWFZYWXTVAFOFMZR5QNBIELKH7' , wallet)
                       checkTrustlines();
                     }} className="bg-[#4fc3f7] hover:bg-[#4fc3f7]/80 text-[#EAFF66] rounded-none">
                       Set Trustline for ETH
@@ -426,7 +426,7 @@ export default function Dashboard() {
                   
                   {walletAddress && !trustlineStETH && trustlineETH && (
                     <Button onClick={async() => {
-                      await setTrustline('stETH' , 'GDZ7SGRSOKOMOENHDBXDYNC77LBP6YRILWXFKL2K6COXVSAE27KHAVQL' , wallet)
+                      await setTrustline('stETH' , 'GCQTTCUQBBPFDI4TVGJGZMKIM5SY3ZFWFZYWXTVAFOFMZR5QNBIELKH7' , wallet)
                       checkTrustlines();
                     }} className="bg-[#4fc3f7] hover:bg-[#4fc3f7]/80 text-[#EAFF66] rounded-none">
                       Set Trustline for stETH
@@ -649,7 +649,7 @@ export default function Dashboard() {
                   </div>
                   {walletAddress && !trustlineETH && (
                     <Button onClick={async() => {
-                      await setTrustline('ETH' , 'GDHPD2PT2HQEMG2XGLSSMSPQTXM5TL3WLU6BLDQ2SMWUVBOX2Y4ZKUUA' , wallet)
+                      await setTrustline('ETH' , 'GCQTTCUQBBPFDI4TVGJGZMKIM5SY3ZFWFZYWXTVAFOFMZR5QNBIELKH7' , wallet)
                     checkTrustlines();} 
                     } className="bg-[#4fc3f7] hover:bg-[#4fc3f7]/80 text-[#EAFF66] rounded-none">
                       Set Trustline for ETH

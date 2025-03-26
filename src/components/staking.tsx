@@ -3,7 +3,7 @@
 import { AlbedoWallet } from '@/services/wallets/AlbedoWallet';
 import { nativeToScVal, Horizon, rpc, TransactionBuilder, Networks, Contract, Transaction, scValToNative, Asset, Operation } from 'stellar-sdk';
 
-const STAKING_CONTRACT_ADDRESS = 'CAZVQKKCWYMGPWFKTAXUTNWT4GP2JFWPSX4YT4N2IOQQSXFMT5OPP4AO';
+const STAKING_CONTRACT_ADDRESS = 'CAMPAKNLQIPAX3NU2YAAKOMFKFZBPHD5XCLGFGVDSAAOZOR6SL7ZNFIA';
 
 export const stakeAssets = async (amount: string, wallet: AlbedoWallet) => {
     try {
@@ -110,7 +110,7 @@ export const swapAssets = async (tokenA: string, tokenB: string, amount: string,
         const account = await server.getAccount(address);
         console.log("Loaded account:", account);
 
-        const contract = new Contract("CAPFLO7AA4RG3ZLIEPYQGYGBGFNBKXPIXVA5YQHNODJ37S2WCMHZB3L7");
+        const contract = new Contract("CDILIAWO2QRVD4HWN72RWCYHEE3235OECBEG5F7FBLU6ZZA5TYMDW6AW");
 
         // Create a transaction
         const transaction = new TransactionBuilder(account, {
@@ -160,7 +160,7 @@ export const getSwapAmount = async (tokenA: string, tokenB: string, amount: stri
 
         console.log(amount)
 
-        const contract = new Contract("CAPFLO7AA4RG3ZLIEPYQGYGBGFNBKXPIXVA5YQHNODJ37S2WCMHZB3L7");
+        const contract = new Contract("CDILIAWO2QRVD4HWN72RWCYHEE3235OECBEG5F7FBLU6ZZA5TYMDW6AW");
 
         // Create a transaction
         const transaction = new TransactionBuilder(account, {
